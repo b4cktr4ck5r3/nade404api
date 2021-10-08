@@ -40,6 +40,13 @@ func GetPlayers(c *fiber.Ctx) error {
 		result.Players = append(result.Players, player)
 	}
 
+	if len(result.Players) <= 0 {
+		return c.Status(404).JSON(&fiber.Map{
+			"succes":  false,
+			"message": "No player found",
+		})
+	}
+
 	response := &fiber.Map{
 		"success": true,
 		"players": result,
@@ -96,4 +103,98 @@ func GetPlayerBySteamID(c *fiber.Ctx) error {
 		"success": false,
 		"message": "Player not found",
 	})
+}
+
+func GetTop10PlayersByKd(c *fiber.Ctx) error {
+	rows, err := database.DB.Query("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM `rankme` WHERE kills > 150 ORDER BY ratio DESC LIMIT 10")
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"success": false,
+			"error":   err,
+		})
+	}
+
+	defer rows.Close()
+	result := model.Players{}
+	for rows.Next() {
+		player := model.Player{}
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		if err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"success": false,
+				"error":   err,
+			})
+		}
+
+		result.Players = append(result.Players, player)
+	}
+
+	if len(result.Players) <= 0 {
+		return c.Status(404).JSON(&fiber.Map{
+			"succes":  false,
+			"message": "No player found for top 10 by kd",
+		})
+	}
+
+	response := &fiber.Map{
+		"success": true,
+		"players": result,
+		"message": "All players returned successfully",
+	}
+
+	if err := c.JSON(response); err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": err,
+		})
+	}
+
+	return c.Status(200).JSON(response)
+}
+
+func GetTop10PlayersByHs(c *fiber.Ctx) error {
+	rows, err := database.DB.Query("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM `rankme` WHERE kills > 150 ORDER BY headshots_percent DESC LIMIT 10")
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"success": false,
+			"error":   err,
+		})
+	}
+
+	defer rows.Close()
+	result := model.Players{}
+	for rows.Next() {
+		player := model.Player{}
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		if err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"success": false,
+				"error":   err,
+			})
+		}
+
+		result.Players = append(result.Players, player)
+	}
+
+	if len(result.Players) <= 0 {
+		return c.Status(404).JSON(&fiber.Map{
+			"succes":  false,
+			"message": "No player found for top 10 by hs",
+		})
+	}
+
+	response := &fiber.Map{
+		"success": true,
+		"players": result,
+		"message": "All players returned successfully",
+	}
+
+	if err := c.JSON(response); err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": err,
+		})
+	}
+
+	return c.Status(200).JSON(response)
 }

@@ -11,4 +11,6 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/version", handler.GetVersion)
 	api.Get("/players", handler.GetPlayers)
 	api.Get("/players/:steam_id", handler.GetPlayerBySteamID)
+	api.Get("/top10kd", handler.GetTop10PlayersByKd)
+	api.Get("/top10hs", handler.GetTop10PlayersByHs)
 }
