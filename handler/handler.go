@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/b4cktr4ck5r3/nade404api/database"
 	"github.com/b4cktr4ck5r3/nade404api/model"
 
@@ -38,20 +40,60 @@ func GetPlayers(c *fiber.Ctx) error {
 		result.Players = append(result.Players, player)
 	}
 
-	if err := c.JSON(&fiber.Map{
+	response := &fiber.Map{
 		"success": true,
 		"players": result,
 		"message": "All players returned successfully",
-	}); err != nil {
+	}
+
+	if err := c.JSON(response); err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"succes":  false,
 			"message": err,
 		})
 	}
 
-	return c.Status(200).JSON(&fiber.Map{
-		"success": true,
-		"players": result,
-		"message": "All players returned successfully",
+	return c.Status(200).JSON(response)
+}
+
+func GetPlayerBySteamID(c *fiber.Ctx) error {
+	rows, err := database.DB.Query(fmt.Sprintf("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM rankme WHERE steam = '%s'", c.Params("steam_id")))
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"success": false,
+			"error":   err,
+		})
+	}
+
+	defer rows.Close()
+	if rows.Next() {
+		player := model.Player{}
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		if err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"success": false,
+				"error":   err,
+			})
+		}
+
+		result := player
+		response := &fiber.Map{
+			"success": true,
+			"players": result,
+			"message": fmt.Sprintf("Player %s returned successfully", result.SteamID),
+		}
+
+		if err := c.JSON(response); err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": err,
+			})
+		}
+		return c.Status(200).JSON(response)
+
+	}
+	return c.Status(404).JSON(&fiber.Map{
+		"success": false,
+		"message": "Player not found",
 	})
 }
