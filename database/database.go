@@ -14,11 +14,11 @@ func Connect() error {
 	var err error
 
 	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		config.Config("user"),
-		config.Config("password"),
-		config.Config("host"),
-		config.Config("port"),
-		config.Config("dbname")))
+		config.Config("DBUSER"),
+		config.Config("DBPWD"),
+		config.Config("DBHOST"),
+		config.Config("DBPORT"),
+		config.Config("DBNAME")))
 
 	if err != nil {
 		return err
