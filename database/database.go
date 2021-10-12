@@ -10,7 +10,26 @@ import (
 
 var DB *sql.DB
 
-func Connect() error {
+func ConnectWithArgs(dbUser string, dbPwd string, dbHost string, dbPort string, dbName string) error {
+	var err error
+
+	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		dbUser,
+		dbPwd,
+		dbHost,
+		dbPort,
+		dbName))
+
+	if err != nil {
+		return err
+	}
+	if err := DB.Ping(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ConnectWithEnv() error {
 	var err error
 
 	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
