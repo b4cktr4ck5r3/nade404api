@@ -17,7 +17,7 @@ func GetVersion(c *fiber.Ctx) error {
 }
 
 func GetPlayers(c *fiber.Ctx) error {
-	rows, err := database.DB.Query("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM rankme")
+	rows, err := database.DB.Query("SELECT id, steam, name, score, FIND_IN_SET( score, ( SELECT GROUP_CONCAT( score ORDER BY score DESC ) FROM rankme ) ) AS rank, mvp, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash, no_scope, thru_smoke, blind, wallbang FROM rankme")
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
@@ -29,7 +29,7 @@ func GetPlayers(c *fiber.Ctx) error {
 	result := model.Players{}
 	for rows.Next() {
 		player := model.Player{}
-		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Score, &player.Rank, &player.Mvp, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists, &player.NoScope, &player.ThruSmoke, &player.Blind, &player.Wallbang)
 		if err != nil {
 			return c.Status(500).JSON(&fiber.Map{
 				"success": false,
@@ -64,7 +64,7 @@ func GetPlayers(c *fiber.Ctx) error {
 }
 
 func GetPlayerBySteamID(c *fiber.Ctx) error {
-	rows, err := database.DB.Query(fmt.Sprintf("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM rankme WHERE steam = '%s'", c.Params("steam_id")))
+	rows, err := database.DB.Query(fmt.Sprintf("SELECT id, steam, name, score, FIND_IN_SET( score, ( SELECT GROUP_CONCAT( score ORDER BY score DESC ) FROM rankme ) ) AS rank, mvp, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash, no_scope, thru_smoke, blind, wallbang FROM rankme WHERE steam = '%s'", c.Params("steam_id")))
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
@@ -75,7 +75,7 @@ func GetPlayerBySteamID(c *fiber.Ctx) error {
 	defer rows.Close()
 	if rows.Next() {
 		player := model.Player{}
-		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Score, &player.Rank, &player.Mvp, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists, &player.NoScope, &player.ThruSmoke, &player.Blind, &player.Wallbang)
 		if err != nil {
 			return c.Status(500).JSON(&fiber.Map{
 				"success": false,
@@ -106,7 +106,7 @@ func GetPlayerBySteamID(c *fiber.Ctx) error {
 }
 
 func GetTop10PlayersByKd(c *fiber.Ctx) error {
-	rows, err := database.DB.Query("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM `rankme` WHERE kills > 150 ORDER BY ratio DESC LIMIT 10")
+	rows, err := database.DB.Query("SELECT id, steam, name, score, FIND_IN_SET( score, ( SELECT GROUP_CONCAT( score ORDER BY score DESC ) FROM rankme ) ) AS rank, mvp, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash, no_scope, thru_smoke, blind, wallbang FROM `rankme` WHERE kills > 750 ORDER BY ratio DESC LIMIT 10")
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
@@ -118,7 +118,7 @@ func GetTop10PlayersByKd(c *fiber.Ctx) error {
 	result := model.Players{}
 	for rows.Next() {
 		player := model.Player{}
-		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Score, &player.Rank, &player.Mvp, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists, &player.NoScope, &player.ThruSmoke, &player.Blind, &player.Wallbang)
 		if err != nil {
 			return c.Status(500).JSON(&fiber.Map{
 				"success": false,
@@ -153,7 +153,7 @@ func GetTop10PlayersByKd(c *fiber.Ctx) error {
 }
 
 func GetTop10PlayersByHs(c *fiber.Ctx) error {
-	rows, err := database.DB.Query("SELECT id, steam, name, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash FROM `rankme` WHERE kills > 150 ORDER BY headshots_percent DESC LIMIT 10")
+	rows, err := database.DB.Query("SELECT id, steam, name, score, FIND_IN_SET( score, ( SELECT GROUP_CONCAT( score ORDER BY score DESC ) FROM rankme ) ) AS rank, mvp, kills, deaths, (kills/deaths) as ratio, headshots, ROUND((headshots/kills) * 100, 0) as headshots_percent, assists, assist_flash, no_scope, thru_smoke, blind, wallbang FROM `rankme` WHERE kills > 750 ORDER BY headshots_percent DESC LIMIT 10")
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
@@ -165,7 +165,7 @@ func GetTop10PlayersByHs(c *fiber.Ctx) error {
 	result := model.Players{}
 	for rows.Next() {
 		player := model.Player{}
-		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists)
+		err := rows.Scan(&player.Id, &player.SteamID, &player.Name, &player.Score, &player.Rank, &player.Mvp, &player.Kills, &player.Deaths, &player.Ratio, &player.Headshots, &player.HeadshotsPercent, &player.Assists, &player.FlashAssists, &player.NoScope, &player.ThruSmoke, &player.Blind, &player.Wallbang)
 		if err != nil {
 			return c.Status(500).JSON(&fiber.Map{
 				"success": false,
