@@ -45,3 +45,21 @@ type Team struct {
 	Logo    string   `json:"logo"`
 	Players []string `json:"players"`
 }
+
+type Get5ConfigEditPayload struct {
+	SideType string         `json:"side_type"`
+	Maplist  []string       `json:"maplist"`
+	Team1    PlayersPayload `json:"team1"`
+	Team2    PlayersPayload `json:"team2"`
+	Cvars    CvarsPayload   `json:"cvars"`
+}
+
+type PlayersPayload struct {
+	Players []string `json:"players"`
+}
+
+type CvarsPayload struct {
+	MpMaxrounds         string `json:"mp_maxrounds"`
+	MpOvertimeEnable    string `json:"mp_overtime_enable"`
+	SvDamagePrintEnable string `json:"sv_damage_print_enable"`
+}
