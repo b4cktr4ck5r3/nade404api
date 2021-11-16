@@ -1,0 +1,38 @@
+{
+	"matchid": "test_match",
+	"num_maps": 1,
+	"players_per_team": 1,
+	"min_players_to_ready": 1,
+	"min_spectators_to_ready": 0,
+	"skip_veto": true,
+	"side_type": "never_knife",
+	"maplist":[],
+	"team1": {
+		"name": "",
+		"tag": "",
+		"flag": "",
+		"logo": "nade",
+		"players":[]
+	},
+
+	"team2": {
+		"name": "",
+		"tag": "",
+		"flag": "",
+		"logo": "nade",
+		"players":[]
+	},
+
+	"cvars": {
+		"hostname": "         NADE404.COM FREE SERVER DISCORD.GG/NADE404",
+        "mp_maxrounds": "30",
+        "mp_overtime_enable ": "0",
+        "sv_damage_print_enable": "0",
+        "get5_max_pauses": "3",
+        "get5_max_pause_time": "60",
+        "get5_pausing_enabled": "1",
+        "get5_demo_name_format": "{MATCHID}_{MAPNAME})",
+        "get5_time_to_start": "300",
+        "get5_time_to_make_knife_decision": "60"
+	}
+}
