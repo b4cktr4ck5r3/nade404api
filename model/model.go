@@ -23,3 +23,25 @@ type Player struct {
 type Players struct {
 	Players []Player `json:"players"`
 }
+
+type Get5Config struct {
+	Matchid              string            `json:"matchid"`
+	NumMaps              int64             `json:"num_maps"`
+	PlayersPerTeam       int64             `json:"players_per_team"`
+	MinPlayersToReady    int64             `json:"min_players_to_ready"`
+	MinSpectatorsToReady int64             `json:"min_spectators_to_ready"`
+	SkipVeto             bool              `json:"skip_veto"`
+	SideType             string            `json:"side_type"`
+	Maplist              []string          `json:"maplist"`
+	Team1                Team              `json:"team1"`
+	Team2                Team              `json:"team2"`
+	Cvars                map[string]string `json:"cvars"`
+}
+
+type Team struct {
+	Name    string   `json:"name"`
+	Tag     string   `json:"tag"`
+	Flag    string   `json:"flag"`
+	Logo    string   `json:"logo"`
+	Players []string `json:"players"`
+}

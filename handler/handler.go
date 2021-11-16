@@ -198,3 +198,17 @@ func GetTop10PlayersByHs(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(response)
 }
+
+func Get5Config(c *fiber.Ctx) error {
+	return c.Status(404).JSON(&fiber.Map{
+		"success": false,
+		"message": "not implemented",
+	})
+}
+
+func CreateGet5Config(c *fiber.Ctx) error {
+	return c.Status(404).JSON(&fiber.Map{
+		"success": false,
+		"message": "not implemented",
+	})
+}
