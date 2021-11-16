@@ -13,6 +13,6 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/players/:steam_id", handler.GetPlayerBySteamID)
 	api.Get("/top10kd", handler.GetTop10PlayersByKd)
 	api.Get("/top10hs", handler.GetTop10PlayersByHs)
-	api.Get("/get5config", handler.Get5Config)
+	api.Get("/get5config/:config_id", handler.Get5Config)
 	api.Post("/get5config", handler.CreateGet5Config)
 }
