@@ -15,4 +15,5 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/top10hs", handler.GetTop10PlayersByHs)
 	api.Get("/get5config/:config_id", handler.Get5Config)
 	api.Post("/get5config", handler.CreateGet5Config)
+	api.Post("/get5config/:match_id/log", handler.HandleGet5ConfigLogs)
 }

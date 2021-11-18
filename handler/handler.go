@@ -286,3 +286,9 @@ func CreateGet5Config(c *fiber.Ctx) error {
 		"content":  matchConfig,
 	})
 }
+
+func HandleGet5ConfigLogs(c *fiber.Ctx) error {
+	fmt.Println(string(c.Body()))
+
+	return c.Status(200).JSON(string(c.Body()))
+}
