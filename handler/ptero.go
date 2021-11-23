@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/b4cktr4ck5r3/nade404api/config"
 	"github.com/b4cktr4ck5r3/nade404api/model"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -28,7 +29,7 @@ func GetPteroServerList(c *fiber.Ctx) error {
 
 		req.Header = http.Header{
 			"Accept":        []string{"application/json"},
-			"Authorization": []string{"Bearer odexNvfil7D21kXHc3UD9xRa5xFQOJ2PgVU74IwsZ0uV6OJK"},
+			"Authorization": []string{"Bearer " + config.Config("PTERO_TOKEN")},
 		}
 
 		res, err := client.Do(req)
