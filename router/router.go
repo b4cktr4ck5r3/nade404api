@@ -16,4 +16,6 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/get5config/:config_id", handler.Get5Config)
 	api.Post("/get5config", handler.CreateGet5Config)
 	api.Post("/get5config/:match_id/log", handler.HandleGet5ConfigLogs)
+	api.Get("/ptero/server", handler.GetPteroServerList)
+	api.Get("/ptero/server/:server_id", handler.GetPteroServerDetails)
 }

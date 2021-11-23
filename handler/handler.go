@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -288,7 +291,334 @@ func CreateGet5Config(c *fiber.Ctx) error {
 }
 
 func HandleGet5ConfigLogs(c *fiber.Ctx) error {
-	fmt.Println(string(c.Body()))
+	if strings.Contains(string(c.Body()), "get5_event") {
+		var msg json.RawMessage
+		event := model.Get5Event{
+			Params: &msg,
+		}
+
+		if err := json.Unmarshal([]byte(toto(string(c.Body()))), &event); err != nil {
+			fmt.Println(err)
+		}
+
+		switch event.Event {
+		case "series_start":
+			var p model.SeriesStart
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "series_end":
+			var p model.SeriesEnd
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "series_cancel":
+			var p model.SeriesCancel
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "map_veto":
+			var p model.MapVeto
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "map_pick":
+			var p model.MapPick
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "side_picked":
+			var p model.SidePicked
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "knife_start":
+			var p model.KnifeStart
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "knife_won":
+			var p model.KnifeWon
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "going_live":
+			var p model.GoingLive
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "round_end":
+			var p model.RoundEnd
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "side_swap":
+			var p model.SideSwap
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "map_end":
+			var p model.MapEnd
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "player_death":
+			var p model.PlayerDeath
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "bomb_planted":
+			var p model.BombPlanted
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "bomb_defused":
+			var p model.BombDefused
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "bomb_exploded":
+			var p model.BombExploded
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "client_say":
+			var p model.ClientSay
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "player_connect":
+			var p model.PlayerConnect
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "player_disconnect":
+			var p model.PlayerDisconnect
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "match_config_load_fail":
+			var p model.MatchConfigLoadFailed
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "backup_loaded":
+			var p model.BackupLoad
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "team_ready":
+			var p model.TeamReady
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		case "team_unready":
+			var p model.TeamUnready
+			if err := json.Unmarshal(msg, &p); err != nil {
+				fmt.Println(err)
+			} else {
+				event.Params = p
+			}
+		default:
+			fmt.Println("unknown event type: " + event.Event)
+		}
+
+		fmt.Println(prettyPrint(event))
+
+	}
 
 	return c.Status(200).JSON(string(c.Body()))
+}
+
+func toto(str string) string {
+	var sb strings.Builder
+	braceLeftCount := 0
+	braceRightCount := 0
+	for i := 0; i < len(str); i++ {
+		if str[i] == '{' || braceLeftCount > 0 {
+			sb.WriteRune(rune(str[i]))
+			if str[i] == '{' {
+				braceLeftCount++
+			} else if str[i] == '}' {
+				braceRightCount++
+			}
+
+			if len(sb.String()) > 0 && braceLeftCount == braceRightCount {
+				break
+			}
+		}
+	}
+
+	return sb.String()
+}
+
+func prettyPrint(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
+}
+
+func GetPteroServerList(c *fiber.Ctx) error {
+	serverNotFound := true
+	client := http.Client{}
+	url := "https://p.ezstrat.com/api/client/"
+
+	for serverNotFound {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": err,
+			})
+		}
+
+		req.Header = http.Header{
+			"Accept":        []string{"application/json"},
+			"Authorization": []string{"Bearer odexNvfil7D21kXHc3UD9xRa5xFQOJ2PgVU74IwsZ0uV6OJK"},
+		}
+
+		res, err := client.Do(req)
+		if err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": err,
+			})
+		}
+
+		defer res.Body.Close()
+
+		if res.StatusCode == http.StatusOK {
+			t := new(model.PteroServerList)
+			if err := json.NewDecoder(res.Body).Decode(t); err != nil {
+				return c.Status(500).JSON(&fiber.Map{
+					"succes":  false,
+					"message": err,
+				})
+			}
+
+			server, err := FindServerInList(t)
+			if err != nil {
+				if t.Meta.Pagination.CurrentPage < t.Meta.Pagination.TotalPages {
+					url = t.Meta.Pagination.Links.Next
+				} else {
+					serverNotFound = false
+				}
+
+			} else {
+				serverNotFound = false
+				return c.Status(500).JSON(&fiber.Map{
+					"succes":      true,
+					"message":     "Server found",
+					"serverInfos": server,
+				})
+			}
+		} else {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": "Request didn't work",
+			})
+		}
+
+	}
+
+	return c.Status(200).JSON("null")
+}
+
+func FindServerInList(t *model.PteroServerList) (model.PteroServerListDatum, error) {
+	fmt.Println("CALL FINDSERVER")
+	for i := 0; i < len(t.Data); i++ {
+		data := t.Data[i]
+		if len(data.Attributes.Relationships.Allocations.Data) > 0 {
+			ip := data.Attributes.Relationships.Allocations.Data[0].Attributes.IP
+			port := data.Attributes.Relationships.Allocations.Data[0].Attributes.Port
+			if ip == "51.158.82.97" && port == 27015 {
+				return t.Data[i], nil
+			}
+		}
+	}
+
+	return model.PteroServerListDatum{}, errors.New("Server not found")
+}
+
+func GetPteroServerDetails(c *fiber.Ctx) error {
+	client := http.Client{}
+	req, err := http.NewRequest("GET", "https://p.ezstrat.com/api/client/servers/"+c.Params("server_id"), nil)
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": err,
+		})
+	}
+
+	req.Header = http.Header{
+		"Accept":        []string{"application/json"},
+		"Content-Type":  []string{"application/json"},
+		"Authorization": []string{"Bearer odexNvfil7D21kXHc3UD9xRa5xFQOJ2PgVU74IwsZ0uV6OJK"},
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": err,
+		})
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode == http.StatusOK {
+		t := new(model.PteroServerListDatum)
+		if err := json.NewDecoder(res.Body).Decode(t); err != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": err,
+			})
+		}
+		fmt.Println(t.Attributes.Relationships.Allocations)
+	}
+	fmt.Println(res)
+	return c.Status(200).JSON("null")
 }
