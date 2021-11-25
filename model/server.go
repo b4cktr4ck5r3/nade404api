@@ -67,7 +67,7 @@ type FluffyAttributes struct {
 	ID        int64       `json:"id"`
 	IP        string      `json:"ip"`
 	IPAlias   string      `json:"ip_alias"`
-	Port      int64       `json:"port"`
+	Port      int         `json:"port"`
 	Notes     interface{} `json:"notes"`
 	IsDefault bool        `json:"is_default"`
 }

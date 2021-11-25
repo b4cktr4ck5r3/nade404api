@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/b4cktr4ck5r3/nade404api/config"
 	"github.com/b4cktr4ck5r3/nade404api/model"
@@ -13,7 +13,34 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetPteroServerList(c *fiber.Ctx) error {
+func GetPteroServerByIpAndPort(c *fiber.Ctx) error {
+	var ip string
+	var port int
+	if c.Query("ip") != "" {
+		ip = c.Query("ip")
+	} else {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": "No IP query find",
+		})
+	}
+
+	if c.Query("port") != "" {
+		tempPort, convertError := strconv.Atoi(c.Query("port"))
+		if convertError != nil {
+			return c.Status(500).JSON(&fiber.Map{
+				"succes":  false,
+				"message": "Port Query cannot be cast in int value",
+			})
+		}
+		port = tempPort
+	} else {
+		return c.Status(500).JSON(&fiber.Map{
+			"succes":  false,
+			"message": "No Port query find",
+		})
+	}
+
 	serverNotFound := true
 	client := http.Client{}
 	url := "https://p.ezstrat.com/api/client/"
@@ -51,7 +78,7 @@ func GetPteroServerList(c *fiber.Ctx) error {
 				})
 			}
 
-			server, err := FindServerInList(t)
+			server, err := findServerInList(t, ip, port)
 			if err != nil {
 				if t.Meta.Pagination.CurrentPage < t.Meta.Pagination.TotalPages {
 					url = t.Meta.Pagination.Links.Next
@@ -76,61 +103,23 @@ func GetPteroServerList(c *fiber.Ctx) error {
 
 	}
 
-	return c.Status(200).JSON("null")
+	return c.Status(500).JSON(&fiber.Map{
+		"succes":  false,
+		"message": "No server found",
+	})
 }
 
-func FindServerInList(t *model.PteroServerList) (model.PteroServerListDatum, error) {
-	fmt.Println("CALL FINDSERVER")
+func findServerInList(t *model.PteroServerList, ip string, port int) (model.PteroServerListDatum, error) {
 	for i := 0; i < len(t.Data); i++ {
 		data := t.Data[i]
 		if len(data.Attributes.Relationships.Allocations.Data) > 0 {
-			ip := data.Attributes.Relationships.Allocations.Data[0].Attributes.IP
-			port := data.Attributes.Relationships.Allocations.Data[0].Attributes.Port
-			if ip == "51.158.82.97" && port == 27015 {
+			currentIp := data.Attributes.Relationships.Allocations.Data[0].Attributes.IP
+			currentPort := data.Attributes.Relationships.Allocations.Data[0].Attributes.Port
+			if currentIp == ip && currentPort == port {
 				return t.Data[i], nil
 			}
 		}
 	}
 
 	return model.PteroServerListDatum{}, errors.New("Server not found")
-}
-
-func GetPteroServerDetails(c *fiber.Ctx) error {
-	client := http.Client{}
-	req, err := http.NewRequest("GET", "https://p.ezstrat.com/api/client/servers/"+c.Params("server_id"), nil)
-	if err != nil {
-		return c.Status(500).JSON(&fiber.Map{
-			"succes":  false,
-			"message": err,
-		})
-	}
-
-	req.Header = http.Header{
-		"Accept":        []string{"application/json"},
-		"Content-Type":  []string{"application/json"},
-		"Authorization": []string{"Bearer odexNvfil7D21kXHc3UD9xRa5xFQOJ2PgVU74IwsZ0uV6OJK"},
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return c.Status(500).JSON(&fiber.Map{
-			"succes":  false,
-			"message": err,
-		})
-	}
-
-	defer res.Body.Close()
-
-	if res.StatusCode == http.StatusOK {
-		t := new(model.PteroServerListDatum)
-		if err := json.NewDecoder(res.Body).Decode(t); err != nil {
-			return c.Status(500).JSON(&fiber.Map{
-				"succes":  false,
-				"message": err,
-			})
-		}
-		fmt.Println(t.Attributes.Relationships.Allocations)
-	}
-	fmt.Println(res)
-	return c.Status(200).JSON("null")
 }
